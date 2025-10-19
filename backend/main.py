@@ -1,4 +1,5 @@
 # backend/main.py
+# uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
