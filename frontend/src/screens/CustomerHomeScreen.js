@@ -68,14 +68,17 @@ export default function CustomerHomeScreen({ navigation }) {
       <View style={styles.menu}>
         <Text style={styles.menuTitle}>Quick Actions</Text>
         
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('StudioList')}>
           <Text style={styles.menuItemText}>🏢 Browse Studios</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>Find and book recording studios</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('MyBookings')}
+        >
           <Text style={styles.menuItemText}>📅 My Bookings</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>View and manage your bookings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem}>
