@@ -1,0 +1,7 @@
+fastapi - The web framework
+uvicorn - Server to run FastAPI
+sqlalchemy - Talk to PostgreSQL database
+psycopg2-binary - PostgreSQL driver
+python-jose - Create JWT tokens for login
+passlib - Hash passwords securely
+python-multipart - Handle form data
