@@ -73,9 +73,12 @@ export default function OwnerHomeScreen({ navigation }) {
           <Text style={styles.menuItemSubtext}>Coming soon...</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('PendingApprovals')}
+        >
           <Text style={styles.menuItemText}>⏰ Pending Approvals</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>Review and approve booking requests</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem}>
