@@ -81,9 +81,12 @@ export default function CustomerHomeScreen({ navigation }) {
           <Text style={styles.menuItemSubtext}>View and manage your bookings</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Profile')}
+        >
           <Text style={styles.menuItemText}>👤 Profile</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>View and manage your account</Text>
         </TouchableOpacity>
       </View>
 
