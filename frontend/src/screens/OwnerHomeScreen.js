@@ -68,9 +68,12 @@ export default function OwnerHomeScreen({ navigation }) {
       <View style={styles.menu}>
         <Text style={styles.menuTitle}>Studio Management</Text>
         
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('MyStudios')}
+        >
           <Text style={styles.menuItemText}>🏢 My Studios</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>Manage your studios and resources</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -89,9 +92,12 @@ export default function OwnerHomeScreen({ navigation }) {
           <Text style={styles.menuItemSubtext}>View all bookings for your studios</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('CreateStudio')}
+        >
           <Text style={styles.menuItemText}>➕ Create New Studio</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>Add a new studio to your listings</Text>
         </TouchableOpacity>
       </View>
 

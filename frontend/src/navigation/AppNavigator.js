@@ -16,7 +16,10 @@ import BookingScreen from '../screens/BookingScreen';
 import MyBookingsScreen from '../screens/MyBookingsScreen';
 import PendingApprovalsScreen from '../screens/PendingApprovalsScreen';
 import AllStudioBookingsScreen from '../screens/AllStudioBookingsScreen';
-
+import CreateStudioScreen from '../screens/CreateStudioScreen';
+import AddResourceScreen from '../screens/AddResourceScreen';
+import MyStudiosScreen from '../screens/MyStudiosScreen';  
+import StudioResourcesScreen from '../screens/StudioResourcesScreen';  
 
 const Stack = createNativeStackNavigator();
 
@@ -43,7 +46,12 @@ export default function AppNavigator() {
         {/* Owner Screens */}
         <Stack.Screen name="OwnerHome" component={OwnerHomeScreen} />
         <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} />
-        <Stack.Screen name="AllStudioBookings" component={AllStudioBookingsScreen}/>
+        <Stack.Screen name="AllStudioBookings" component={AllStudioBookingsScreen} />
+        <Stack.Screen name="CreateStudio" component={CreateStudioScreen} />
+        <Stack.Screen name="AddResource" component={AddResourceScreen} />
+        <Stack.Screen name="MyStudios" component={MyStudiosScreen} />  
+        <Stack.Screen name="StudioResources" component={StudioResourcesScreen} />  
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

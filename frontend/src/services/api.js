@@ -60,27 +60,33 @@ export const authAPI = {
 // ============================================
 
 export const studioAPI = {
-  // Get all published studios
   getAllStudios: async () => {
     const response = await api.get('/studios/');
     return response.data;
   },
 
-  // Get single studio
   getStudio: async (studioId) => {
     const response = await api.get(`/studios/${studioId}`);
     return response.data;
   },
 
-  // Get my studios (owner only)
   getMyStudios: async () => {
     const response = await api.get('/studios/my-studios');
     return response.data;
   },
 
-  // Create studio (owner only)
   createStudio: async (studioData) => {
     const response = await api.post('/studios/', studioData);
+    return response.data;
+  },
+
+  updateStudio: async (studioId, studioData) => {
+    const response = await api.put(`/studios/${studioId}`, studioData);
+    return response.data;
+  },
+
+  deleteStudio: async (studioId) => {
+    const response = await api.delete(`/studios/${studioId}`);
     return response.data;
   },
 };
@@ -93,6 +99,30 @@ export const resourceAPI = {
   // Get resources for a studio
   getStudioResources: async (studioId) => {
     const response = await api.get(`/resources/${studioId}/resources`);
+    return response.data;
+  },
+
+  // Get single resource
+  getResource: async (resourceId) => {
+    const response = await api.get(`/resources/resource/${resourceId}`);
+    return response.data;
+  },
+
+  // Add resource to studio
+  addResourceToStudio: async (studioId, resourceData) => {
+    const response = await api.post(`/resources/${studioId}/resources`, resourceData);
+    return response.data;
+  },
+
+  // Update resource
+  updateResource: async (resourceId, resourceData) => {
+    const response = await api.put(`/resources/resource/${resourceId}`, resourceData);
+    return response.data;
+  },
+
+  // Delete resource
+  deleteResource: async (resourceId) => {
+    const response = await api.delete(`/resources/resource/${resourceId}`);
     return response.data;
   },
 };
