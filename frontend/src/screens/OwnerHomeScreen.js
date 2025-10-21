@@ -81,9 +81,12 @@ export default function OwnerHomeScreen({ navigation }) {
           <Text style={styles.menuItemSubtext}>Review and approve booking requests</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('AllStudioBookings')}
+        >
           <Text style={styles.menuItemText}>📊 All Bookings</Text>
-          <Text style={styles.menuItemSubtext}>Coming soon...</Text>
+          <Text style={styles.menuItemSubtext}>View all bookings for your studios</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem}>

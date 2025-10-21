@@ -15,7 +15,7 @@ import StudioListScreen from '../screens/StudioListScreen';
 import BookingScreen from '../screens/BookingScreen';
 import MyBookingsScreen from '../screens/MyBookingsScreen';
 import PendingApprovalsScreen from '../screens/PendingApprovalsScreen';
-
+import AllStudioBookingsScreen from '../screens/AllStudioBookingsScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +43,7 @@ export default function AppNavigator() {
         {/* Owner Screens */}
         <Stack.Screen name="OwnerHome" component={OwnerHomeScreen} />
         <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} />
+        <Stack.Screen name="AllStudioBookings" component={AllStudioBookingsScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

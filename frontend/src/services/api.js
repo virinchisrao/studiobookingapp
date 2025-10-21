@@ -116,7 +116,7 @@ export const bookingAPI = {
     return response.data;
   },
 
-  // Get my bookings
+  // Get my bookings (customer)
   getMyBookings: async () => {
     const response = await api.get('/bookings/my-bookings');
     return response.data;
@@ -125,6 +125,12 @@ export const bookingAPI = {
   // Get pending approvals (owner)
   getPendingApprovals: async () => {
     const response = await api.get('/bookings/pending-approvals');
+    return response.data;
+  },
+
+  // Get all studio bookings (owner) - NEW!
+  getMyStudioBookings: async () => {
+    const response = await api.get('/bookings/my-studio-bookings');
     return response.data;
   },
 
@@ -137,6 +143,11 @@ export const bookingAPI = {
   // Cancel booking
   cancelBooking: async (bookingId, cancelData) => {
     const response = await api.put(`/bookings/${bookingId}/cancel`, cancelData);
+    return response.data;
+  },
+   // Get single booking details
+  getBooking: async (bookingId) => {
+    const response = await api.get(`/bookings/${bookingId}`);
     return response.data;
   },
 };
