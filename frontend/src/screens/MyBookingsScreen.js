@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { bookingAPI } from '../services/api';
+import { enrichBookingsWithNames, getResourceIcon } from '../utils/bookingHelpers';
 
 export default function MyBookingsScreen({ navigation }) {
   const [bookings, setBookings] = useState([]);
@@ -34,7 +35,10 @@ export default function MyBookingsScreen({ navigation }) {
     try {
       setLoading(true);
       const data = await bookingAPI.getMyBookings();
-      setBookings(data);
+      
+      // Enrich with names
+      const enrichedData = await enrichBookingsWithNames(data);
+      setBookings(enrichedData);
     } catch (error) {
       console.error('Error loading bookings:', error);
       Alert.alert('Error', 'Failed to load bookings');
@@ -194,10 +198,24 @@ export default function MyBookingsScreen({ navigation }) {
       <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
         <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
         <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
-      </View>
+      </View>   
 
       {/* Booking ID */}
-      <Text style={styles.bookingId}>Booking #{item.booking_id}</Text>
+      <Text style={styles.bookingId}>Booking #{item.booking_id}</Text>    
+
+      {/* NEW: Studio & Resource Info */}
+      <View style={styles.venueInfo}>
+        <View style={styles.venueRow}>
+          <Text style={styles.venueIcon}>🏢</Text>
+          <Text style={styles.venueName}>{item.studio_name}</Text>
+        </View>
+        <View style={styles.venueRow}>
+          <Text style={styles.venueIcon}>{getResourceIcon(item.resource_type)}</Text>
+          <Text style={styles.resourceName}>{item.resource_name}</Text>
+        </View>
+      </View>
+
+    {/* Rest of the existing code... */}
 
       {/* Date & Time */}
       <View style={styles.dateTimeContainer}>
@@ -512,4 +530,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  venueInfo: {
+  backgroundColor: '#f9f9f9',
+  padding: 12,
+  borderRadius: 8,
+  marginBottom: 12,
+},
+venueRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 6,
+},
+venueIcon: {
+  fontSize: 16,
+  marginRight: 8,
+  width: 20,
+},
+venueName: {
+  fontSize: 15,
+  color: '#333',
+  fontWeight: '600',
+  flex: 1,
+},
+resourceName: {
+  fontSize: 14,
+  color: '#666',
+  flex: 1,
+},
 });

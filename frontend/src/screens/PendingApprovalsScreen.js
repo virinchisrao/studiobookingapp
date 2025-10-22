@@ -16,6 +16,7 @@ import {
   Platform,
 } from 'react-native';
 import { bookingAPI } from '../services/api';
+import { enrichBookingsWithNames, getResourceIcon } from '../utils/bookingHelpers';
 
 export default function PendingApprovalsScreen({ navigation }) {
   const [bookings, setBookings] = useState([]);
@@ -40,19 +41,21 @@ export default function PendingApprovalsScreen({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  const loadPendingBookings = async () => {
-    try {
-      setLoading(true);
-      const data = await bookingAPI.getPendingApprovals();
-      setBookings(data);
-    } catch (error) {
-      console.error('Error loading pending bookings:', error);
-      Alert.alert('Error', 'Failed to load pending bookings');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+const loadPendingBookings = async () => {
+  try {
+    setLoading(true);
+    const data = await bookingAPI.getPendingApprovals();
+    
+    // Enrich with names
+    const enrichedData = await enrichBookingsWithNames(data);
+    setBookings(enrichedData);
+  } catch (error) {
+    console.error('Error loading pending bookings:', error);
+    Alert.alert('Error', 'Failed to load pending bookings');
+  } finally {
+    setLoading(false);
+  }
+};
   const onRefresh = async () => {
     setRefreshing(true);
     await loadPendingBookings();
@@ -172,6 +175,23 @@ export default function PendingApprovalsScreen({ navigation }) {
         {/* Booking Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Booking Details</Text>
+
+           {/* NEW: Studio & Resource Names */}
+  <View style={styles.detailRow}>
+    <Text style={styles.detailIcon}>🏢</Text>
+    <View style={styles.detailContent}>
+      <Text style={styles.detailLabel}>Studio</Text>
+      <Text style={styles.detailValue}>{item.studio_name}</Text>
+    </View>
+  </View>
+
+  <View style={styles.detailRow}>
+    <Text style={styles.detailIcon}>{getResourceIcon(item.resource_type)}</Text>
+    <View style={styles.detailContent}>
+      <Text style={styles.detailLabel}>Resource</Text>
+      <Text style={styles.detailValue}>{item.resource_name}</Text>
+    </View>
+  </View>
           
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>📅</Text>

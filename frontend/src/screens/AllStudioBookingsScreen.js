@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { bookingAPI } from '../services/api';
+import { enrichBookingsWithNames, getResourceIcon } from '../utils/bookingHelpers';
 
 export default function AllStudioBookingsScreen({ navigation }) {
   const [bookings, setBookings] = useState([]);
@@ -41,7 +42,10 @@ export default function AllStudioBookingsScreen({ navigation }) {
     try {
       setLoading(true);
       const data = await bookingAPI.getMyStudioBookings();
-      setBookings(data);
+      
+      // Enrich with names
+      const enrichedData = await enrichBookingsWithNames(data);
+      setBookings(enrichedData);
     } catch (error) {
       console.error('Error loading bookings:', error);
       Alert.alert('Error', 'Failed to load bookings');
@@ -198,6 +202,27 @@ export default function AllStudioBookingsScreen({ navigation }) {
         <Text style={styles.infoIcon}>👤</Text>
         <Text style={styles.infoText}>Customer ID: {item.user_id}</Text>
       </View>
+
+      {/*Venue Details */}
+      <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Venue Details</Text>
+      
+      <View style={styles.detailRow}>
+        <Text style={styles.detailIcon}>🏢</Text>
+        <View style={styles.detailContent}>
+          <Text style={styles.detailLabel}>Studio</Text>
+          <Text style={styles.detailValue}>{item.studio_name}</Text>
+        </View>
+      </View>
+
+      <View style={styles.detailRow}>
+        <Text style={styles.detailIcon}>{getResourceIcon(item.resource_type)}</Text>
+        <View style={styles.detailContent}>
+          <Text style={styles.detailLabel}>Resource</Text>
+          <Text style={styles.detailValue}>{item.resource_name}</Text>
+        </View>
+      </View>
+    </View>
 
       {/* Studio & Resource Info */}
       <View style={styles.infoRow}>
