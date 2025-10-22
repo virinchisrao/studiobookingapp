@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+from decimal import Decimal
 
 # ============================================
 # STUDIO CREATE SCHEMA
@@ -10,7 +11,6 @@ from typing import Optional
 class StudioCreate(BaseModel):
     """
     Schema for creating a new studio.
-    Only studio owners can create studios.
     """
     name: str = Field(..., min_length=2, max_length=255)
     description: Optional[str] = None
@@ -18,17 +18,21 @@ class StudioCreate(BaseModel):
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=20)
+    lat: Optional[Decimal] = None  # NEW
+    lng: Optional[Decimal] = None  # NEW
     phone: Optional[str] = Field(None, max_length=20)
     
     class Config:
         json_schema_extra = {
             "example": {
                 "name": "Sound Studio Mumbai",
-                "description": "Professional recording studio with state-of-the-art equipment",
+                "description": "Professional recording studio",
                 "address": "123 Music Street, Bandra West",
                 "city": "Mumbai",
                 "state": "Maharashtra",
                 "postal_code": "400050",
+                "lat": 19.0760,
+                "lng": 72.8777,
                 "phone": "+912212345678"
             }
         }
@@ -40,7 +44,6 @@ class StudioCreate(BaseModel):
 class StudioUpdate(BaseModel):
     """
     Schema for updating studio information.
-    All fields are optional.
     """
     name: Optional[str] = Field(None, min_length=2, max_length=255)
     description: Optional[str] = None
@@ -48,6 +51,8 @@ class StudioUpdate(BaseModel):
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=20)
+    lat: Optional[Decimal] = None  # NEW
+    lng: Optional[Decimal] = None  # NEW
     phone: Optional[str] = Field(None, max_length=20)
     is_published: Optional[bool] = None
     
@@ -55,7 +60,8 @@ class StudioUpdate(BaseModel):
         json_schema_extra = {
             "example": {
                 "name": "Sound Studio Mumbai - Updated",
-                "description": "Updated description",
+                "lat": 19.0760,
+                "lng": 72.8777,
                 "is_published": True
             }
         }
@@ -76,6 +82,8 @@ class StudioResponse(BaseModel):
     city: Optional[str]
     state: Optional[str]
     postal_code: Optional[str]
+    lat: Optional[Decimal]  # NEW
+    lng: Optional[Decimal]  # NEW
     phone: Optional[str]
     is_active: bool
     is_published: bool
@@ -94,6 +102,8 @@ class StudioResponse(BaseModel):
                 "city": "Mumbai",
                 "state": "Maharashtra",
                 "postal_code": "400050",
+                "lat": 19.0760,
+                "lng": 72.8777,
                 "phone": "+912212345678",
                 "is_active": True,
                 "is_published": True,

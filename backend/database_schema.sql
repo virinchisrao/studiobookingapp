@@ -21,22 +21,44 @@ CREATE TABLE users (
 -- ============================================
 -- TABLE 2: STUDIOS
 -- ============================================
-CREATE TABLE studios (
-    studio_id SERIAL PRIMARY KEY,
-    owner_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    address TEXT NOT NULL,
-    city VARCHAR(100),
-    state VARCHAR(100),
-    postal_code VARCHAR(20),
-    phone VARCHAR(20),
-    is_active BOOLEAN DEFAULT TRUE,
-    is_published BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE IF NOT EXISTS public.studios
+(
+    studio_id integer NOT NULL DEFAULT nextval('studios_studio_id_seq'::regclass),
+    owner_id integer NOT NULL,
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    description text COLLATE pg_catalog."default",
+    address text COLLATE pg_catalog."default" NOT NULL,
+    city character varying(100) COLLATE pg_catalog."default",
+    state character varying(100) COLLATE pg_catalog."default",
+    postal_code character varying(20) COLLATE pg_catalog."default",
+    phone character varying(20) COLLATE pg_catalog."default",
+    is_active boolean DEFAULT true,
+    is_published boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    lat numeric(10,8),
+    lng numeric(11,8),
+    CONSTRAINT studios_pkey PRIMARY KEY (studio_id),
+    CONSTRAINT studios_owner_id_fkey FOREIGN KEY (owner_id)
+        REFERENCES public.users (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
 
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.studios
+    OWNER to postgres;
+-- Index: idx_studios_owner
+
+-- DROP INDEX IF EXISTS public.idx_studios_owner;
+
+CREATE INDEX IF NOT EXISTS idx_studios_owner
+    ON public.studios USING btree
+    (owner_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+    
 -- ============================================
 -- TABLE 3: RESOURCES (Rooms within studios)
 -- ============================================

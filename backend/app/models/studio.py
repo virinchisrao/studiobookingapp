@@ -1,6 +1,6 @@
 # backend/app/models/studio.py
 
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey,DECIMAL
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -21,6 +21,9 @@ class Studio(Base):
     city = Column(String(100), nullable=True)
     state = Column(String(100), nullable=True)
     postal_code = Column(String(20), nullable=True)
+
+    lat = Column(DECIMAL(10, 8), nullable=True)
+    lng = Column(DECIMAL(11, 8), nullable=True)
     
     phone = Column(String(20), nullable=True)
     

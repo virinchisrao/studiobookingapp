@@ -254,6 +254,14 @@ export default function StudioListScreen({ navigation }) {
           {filteredStudios.length} {filteredStudios.length === 1 ? 'studio' : 'studios'}
           {searchQuery ? ` matching "${searchQuery}"` : ''}
         </Text>
+        <View style={styles.headerActions}>
+        <TouchableOpacity
+          style={styles.mapViewButton}
+          onPress={() => navigation.navigate('MapView')}
+        >
+          <Text style={styles.mapViewIcon}>🗺️</Text>
+        </TouchableOpacity>
+      </View>
       </View>
 
       {/* Search Bar */}
@@ -582,13 +590,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  header: {
-    backgroundColor: '#fff',
-    padding: 20,
-    paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
+header: {
+  backgroundColor: '#fff',
+  padding: 20,
+  paddingTop: 50,
+  borderBottomWidth: 1,
+  borderBottomColor: '#e0e0e0',
+  flexDirection: 'row',        // Add this
+  justifyContent: 'space-between', // Add this
+  alignItems: 'flex-start',    // Add this
+},
+headerActions: {
+  marginLeft: 10,
+},
+mapViewButton: {
+  backgroundColor: '#007AFF',
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+mapViewIcon: {
+  fontSize: 20,
+},
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',

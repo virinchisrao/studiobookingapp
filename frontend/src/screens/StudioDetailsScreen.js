@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import { resourceAPI } from '../services/api';
+import MapView, { Marker } from 'react-native-maps';
+import { Linking, Platform } from 'react-native';
 
 export default function StudioDetailsScreen({ route, navigation }) {
   const { studio } = route.params;
@@ -119,6 +121,54 @@ export default function StudioDetailsScreen({ route, navigation }) {
             </View>
           )}
         </View>
+
+        {/* Location Map */}
+{studio.lat && studio.lng && (
+  <View style={styles.mapSection}>
+    <Text style={styles.sectionTitle}>Location</Text>
+    <MapView
+      style={styles.miniMap}
+      initialRegion={{
+        latitude: parseFloat(studio.lat),
+        longitude: parseFloat(studio.lng),
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }}
+      scrollEnabled={false}
+      zoomEnabled={false}
+    >
+      <Marker
+        coordinate={{
+          latitude: parseFloat(studio.lat),
+          longitude: parseFloat(studio.lng),
+        }}
+        title={studio.name}
+      />
+    </MapView>
+    
+    {/* Get Directions Button */}
+    <TouchableOpacity
+      style={styles.directionsButton}
+      onPress={() => {
+        const lat = parseFloat(studio.lat);
+        const lng = parseFloat(studio.lng);
+        const scheme = Platform.select({
+          ios: 'maps:0,0?q=',
+          android: 'geo:0,0?q=',
+        });
+        const latLng = `${lat},${lng}`;
+        const label = studio.name;
+        const url = Platform.select({
+          ios: `${scheme}${label}@${latLng}`,
+          android: `${scheme}${latLng}(${label})`,
+        });
+        Linking.openURL(url);
+      }}
+    >
+      <Text style={styles.directionsButtonText}>📍 Get Directions</Text>
+    </TouchableOpacity>
+  </View>
+)}
 
         {/* Resources Section */}
         <View style={styles.section}>
@@ -267,6 +317,36 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 20,
   },
+mapSection: {
+  marginBottom: 20,
+},
+sectionTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  marginBottom: 15,
+  paddingHorizontal: 20,
+},
+miniMap: {
+  height: 200,
+  borderRadius: 12,
+  marginHorizontal: 20,
+  overflow: 'hidden',
+},
+directionsButton: {
+  backgroundColor: '#007AFF',
+  marginHorizontal: 20,
+  marginTop: 15,
+  padding: 15,
+  borderRadius: 8,
+  alignItems: 'center',
+},
+directionsButtonText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+},
+
   section: {
     backgroundColor: '#fff',
     padding: 20,
