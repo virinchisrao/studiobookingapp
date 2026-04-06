@@ -14,83 +14,107 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { studioAPI } from '../services/api';
+import LocationPicker from '../components/LocationPicker';
 
 export default function CreateStudioScreen({ navigation }) {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    address: '',
-    city: '',
-    state: '',
-    postal_code: '',
-    phone: '',
-  });
+  name: '',
+  description: '',
+  address: '',
+  city: '',
+  state: '',
+  postal_code: '',
+  phone: '',
+  lat: '',
+  lng: '',
+});
   const [loading, setLoading] = useState(false);
 
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const validateForm = () => {
-    if (!formData.name || formData.name.trim().length < 2) {
-      Alert.alert('Validation Error', 'Studio name is required (minimum 2 characters)');
-      return false;
-    }
+const validateForm = () => {
+  if (!formData.name || formData.name.trim().length < 2) {
+    Alert.alert('Validation Error', 'Studio name is required (minimum 2 characters)');
+    return false;
+  }
 
-    if (!formData.address || formData.address.trim().length < 5) {
-      Alert.alert('Validation Error', 'Address is required (minimum 5 characters)');
-      return false;
-    }
+  if (!formData.address || formData.address.trim().length < 5) {
+    Alert.alert('Validation Error', 'Address is required (minimum 5 characters)');
+    return false;
+  }
 
-    return true;
-  };
+  // NEW: Make location required
+  if (!formData.lat || !formData.lng) {
+    Alert.alert(
+      'Location Required',
+      'Please select your studio location on the map.\n\nTap "Select Location on Map" to set the coordinates.'
+    );
+    return false;
+  }
+
+  return true;
+};
 
   const handleCreateStudio = async () => {
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const cleanedData = {
-        name: formData.name.trim(),
-        description: formData.description.trim() || null,
-        address: formData.address.trim(),
-        city: formData.city.trim() || null,
-        state: formData.state.trim() || null,
-        postal_code: formData.postal_code.trim() || null,
-        phone: formData.phone.trim() || null,
-      };
+  try {
+    const cleanedData = {
+      name: formData.name.trim(),
+      description: formData.description.trim() || null,
+      address: formData.address.trim(),
+      city: formData.city.trim() || null,
+      state: formData.state.trim() || null,
+      postal_code: formData.postal_code.trim() || null,
+      phone: formData.phone.trim() || null,
+      lat: formData.lat ? parseFloat(formData.lat) : null,
+      lng: formData.lng ? parseFloat(formData.lng) : null,
+    };
 
-      const newStudio = await studioAPI.createStudio(cleanedData);
+    console.log('=== CREATING STUDIO ===');
+    console.log('Form Data:', formData);
+    console.log('Cleaned Data:', cleanedData);
+    console.log('Lat:', cleanedData.lat, 'Type:', typeof cleanedData.lat);
+    console.log('Lng:', cleanedData.lng, 'Type:', typeof cleanedData.lng);
 
-      Alert.alert(
-        'Studio Created! 🎉',
-        `${newStudio.name} has been created successfully.\n\n` +
-        `Would you like to add resources (rooms) to this studio now?`,
-        [
-          {
-            text: 'Later',
-            onPress: () => navigation.navigate('OwnerHome'),
-          },
-          {
-            text: 'Add Resources',
-            onPress: () => navigation.navigate('AddResource', { studio: newStudio }),
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Error creating studio:', error);
-      
-      let errorMessage = 'Failed to create studio. Please try again.';
-      if (error.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
-      }
-      
-      Alert.alert('Creation Failed', errorMessage);
-    } finally {
-      setLoading(false);
+    const newStudio = await studioAPI.createStudio(cleanedData);
+    
+    console.log('Created Studio Response:', newStudio);
+
+    Alert.alert(
+      'Studio Created! 🎉',
+      `${newStudio.name} has been created successfully.\n\n` +
+      `Would you like to add resources (rooms) to this studio now?`,
+      [
+        {
+          text: 'Later',
+          onPress: () => navigation.navigate('OwnerHome'),
+        },
+        {
+          text: 'Add Resources',
+          onPress: () => navigation.navigate('AddResource', { studio: newStudio }),
+        },
+      ]
+    );
+  } catch (error) {
+    console.error('Error creating studio:', error);
+    console.error('Error response:', error.response?.data);
+    
+    let errorMessage = 'Failed to create studio. Please try again.';
+    if (error.response?.data?.detail) {
+      errorMessage = error.response.data.detail;
     }
-  };
+    
+    Alert.alert('Creation Failed', errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
@@ -160,6 +184,40 @@ export default function CreateStudioScreen({ navigation }) {
               editable={!loading}
             />
           </View>
+          {/* Location Picker */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Studio Location</Text>
+
+          {formData.lat && formData.lng ? (
+            <View style={styles.locationPreview}>
+              <View style={styles.locationInfo}>
+                <Text style={styles.locationLabel}>📍 Location Set</Text>
+                <Text style={styles.locationCoords}>
+                  {parseFloat(formData.lat).toFixed(4)}, {parseFloat(formData.lng).toFixed(4)}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.changeLocationButton}
+                onPress={() => setShowLocationPicker(true)}
+              >
+                <Text style={styles.changeLocationText}>Change</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.selectLocationButton}
+              onPress={() => setShowLocationPicker(true)}
+              disabled={loading}
+            >
+              <Text style={styles.selectLocationIcon}>🗺️</Text>
+              <Text style={styles.selectLocationText}>Select Location on Map</Text>
+            </TouchableOpacity>
+          )}
+
+          <Text style={styles.helpText}>
+            Tap to select your studio's exact location on the map
+          </Text>
+        </View>
 
           {/* City & State */}
           <View style={styles.row}>
@@ -238,6 +296,22 @@ export default function CreateStudioScreen({ navigation }) {
           )}
         </TouchableOpacity>
       </View>
+
+
+      {/* Location Picker Modal */}
+        <LocationPicker
+          visible={showLocationPicker}
+          initialLat={formData.lat}
+          initialLng={formData.lng}
+          onLocationSelect={(lat, lng) => {
+            setFormData({
+              ...formData,
+              lat: lat,
+              lng: lng,
+            });
+          }}
+          onClose={() => setShowLocationPicker(false)}
+        />
     </KeyboardAvoidingView>
   );
 }
@@ -360,4 +434,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  selectLocationButton: {
+  backgroundColor: '#E3F2FD',
+  borderRadius: 8,
+  padding: 15,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 2,
+  borderColor: '#007AFF',
+  borderStyle: 'dashed',
+},
+selectLocationIcon: {
+  fontSize: 24,
+  marginRight: 10,
+},
+selectLocationText: {
+  fontSize: 16,
+  color: '#007AFF',
+  fontWeight: '600',
+},
+locationPreview: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: '#E8F5E9',
+  padding: 15,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: '#4CAF50',
+},
+locationInfo: {
+  flex: 1,
+},
+locationLabel: {
+  fontSize: 14,
+  color: '#2E7D32',
+  fontWeight: '600',
+  marginBottom: 4,
+},
+locationCoords: {
+  fontSize: 13,
+  color: '#666',
+  fontFamily: 'monospace',
+},
+changeLocationButton: {
+  backgroundColor: '#007AFF',
+  paddingHorizontal: 15,
+  paddingVertical: 8,
+  borderRadius: 6,
+},
+changeLocationText: {
+  color: '#fff',
+  fontSize: 14,
+  fontWeight: '600',
+},
+helpText: {
+  fontSize: 12,
+  color: '#666',
+  fontStyle: 'italic',
+  marginTop: 8,
+},
 });

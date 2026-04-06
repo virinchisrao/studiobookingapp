@@ -77,7 +77,7 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>🎵 Studio Booking</Text>
+          <Text style={styles.title}>Music Studio Booking</Text>
           <Text style={styles.subtitle}>Login to your account</Text>
         </View>
 

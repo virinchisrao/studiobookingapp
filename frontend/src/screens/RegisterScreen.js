@@ -89,7 +89,7 @@ export default function RegisterScreen({ navigation }) {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join Studio Booking</Text>
+          <Text style={styles.subtitle}>Join Music Studio Booking</Text>
         </View>
 
         {/* Role Selection */}
