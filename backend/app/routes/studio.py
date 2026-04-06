@@ -26,7 +26,7 @@ def create_studio(
     studio_data: StudioCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_owner)
-):
+    ):
     """
     Create a new studio.
     Only users with role='owner' can create studios.
@@ -36,24 +36,33 @@ def create_studio(
     """
     
     # Create new studio
-    new_studio = Studio(
-        owner_id=current_user.user_id,
-        name=studio_data.name,
-        description=studio_data.description,
-        address=studio_data.address,
-        city=studio_data.city,
-        state=studio_data.state,
-        postal_code=studio_data.postal_code,
-        phone=studio_data.phone,
-        is_active=True,
-        is_published=False  # Draft by default
+    try:
+        new_studio = Studio(
+            owner_id=current_user.user_id,
+            name=studio_data.name,
+            description=studio_data.description,
+            address=studio_data.address,
+            city=studio_data.city,
+            state=studio_data.state,
+            postal_code=studio_data.postal_code,
+            phone=studio_data.phone,
+            lat=studio_data.lat, # IMPORTANT
+            lng=studio_data.lng, # IMPORTANT
+            is_active=True,
+            is_published=False
+            )
+        db.add(new_studio)
+        db.commit()
+        db.refresh(new_studio)
+        return new_studio
+    except Exception as e:
+        db.rollback()
+        # Optionally log e
+        raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Failed to create studio: {str(e)}"
     )
-    
-    db.add(new_studio)
-    db.commit()
-    db.refresh(new_studio)
-    
-    return new_studio
+
 
 
 # ============================================

@@ -1,6 +1,6 @@
 # backend/app/schemas/studio.py
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
 from decimal import Decimal
@@ -18,9 +18,15 @@ class StudioCreate(BaseModel):
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=20)
-    lat: Optional[Decimal] = None  # NEW
-    lng: Optional[Decimal] = None  # NEW
+    lat: Decimal = Field(..., ge=-90, le=90, description="Latitude is required") 
+    lng: Decimal = Field(..., ge=-180, le=180, description="Longitude is required") 
     phone: Optional[str] = Field(None, max_length=20)
+    
+    @field_validator('lat', 'lng')
+    def validate_coordinates(cls, v):
+        if v is None:
+            raise ValueError('Location coordinates are required')
+        return v
     
     class Config:
         json_schema_extra = {
@@ -51,8 +57,8 @@ class StudioUpdate(BaseModel):
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
     postal_code: Optional[str] = Field(None, max_length=20)
-    lat: Optional[Decimal] = None  # NEW
-    lng: Optional[Decimal] = None  # NEW
+    lat: Optional[Decimal] = None 
+    lng: Optional[Decimal] = None  
     phone: Optional[str] = Field(None, max_length=20)
     is_published: Optional[bool] = None
     
@@ -82,8 +88,8 @@ class StudioResponse(BaseModel):
     city: Optional[str]
     state: Optional[str]
     postal_code: Optional[str]
-    lat: Optional[Decimal]  # NEW
-    lng: Optional[Decimal]  # NEW
+    lat: Optional[Decimal]  
+    lng: Optional[Decimal] 
     phone: Optional[str]
     is_active: bool
     is_published: bool

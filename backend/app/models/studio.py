@@ -22,8 +22,8 @@ class Studio(Base):
     state = Column(String(100), nullable=True)
     postal_code = Column(String(20), nullable=True)
 
-    lat = Column(DECIMAL(10, 8), nullable=True)
-    lng = Column(DECIMAL(11, 8), nullable=True)
+    lat = Column(DECIMAL(10, 8), nullable=False)
+    lng = Column(DECIMAL(11, 8), nullable=False)
     
     phone = Column(String(20), nullable=True)
     
