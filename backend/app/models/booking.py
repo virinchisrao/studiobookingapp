@@ -36,7 +36,7 @@ class Booking(Base):
     end_time = Column(Time, nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     
-    status = Column(String(BookingStatus), default=BookingStatus.PENDING_APPROVAL, nullable=False, index=True)
+    status = Column(String(30), default=BookingStatus.PENDING_APPROVAL.value, nullable=False, index=True)
     
     total_amount = Column(DECIMAL(10, 2), nullable=False)
     currency = Column(String(10), default="INR")

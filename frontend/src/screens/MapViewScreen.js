@@ -11,7 +11,16 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
+
+let MapView = null;
+let Marker = null;
+let Callout = null;
+if (Platform.OS !== 'web') {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+  Callout = maps.Callout;
+}
 import * as Location from 'expo-location';
 import { studioAPI } from '../services/api';
 
@@ -155,7 +164,8 @@ export default function MapViewScreen({ navigation }) {
       </View>
 
       {/* Map */}
-      <MapView
+      {Platform.OS !== 'web' && MapView ? (
+        <MapView
         style={styles.map}
         region={region}
         onRegionChangeComplete={setRegion}
@@ -223,6 +233,12 @@ export default function MapViewScreen({ navigation }) {
           />
         )}
       </MapView>
+      ) : (
+        <View style={styles.webMapFallback}>
+          <Text style={styles.webMapFallbackText}>🗺️ Map view is not available on web</Text>
+          <Text style={styles.webMapFallbackSubtext}>Please use the mobile app for map functionality</Text>
+        </View>
+      )}
 
       {/* My Location Button */}
       {userLocation && (
@@ -430,5 +446,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#856404',
     fontWeight: '600',
+  },
+  webMapFallback: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 40,
+  },
+  webMapFallbackText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#666',
+    marginBottom: 10,
+  },
+  webMapFallbackSubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
   },
 });

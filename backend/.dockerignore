@@ -1,0 +1,32 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment (will be rebuilt in Docker)
+venv/
+.venv/
+
+# Ignore .env files (should be set via Docker env or K8s secrets)
+.env
+.env.*
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore tests (optional - reduce image size)
+tests/
+test/
+*_test.py
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore documentation
+*.md
+docs/

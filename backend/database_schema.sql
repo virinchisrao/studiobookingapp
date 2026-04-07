@@ -1,5 +1,10 @@
--- backend/database_schema.sql
--- Simplified Phase 1 Schema for Studio Booking App
+-- ============================================
+-- CLEAN SCHEMA: Studio Booking App
+-- ============================================
+
+-- Drop everything safely (optional but recommended)
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 -- ============================================
 -- TABLE 1: USERS
@@ -21,61 +26,43 @@ CREATE TABLE users (
 -- ============================================
 -- TABLE 2: STUDIOS
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.studios
-(
-    studio_id integer NOT NULL DEFAULT nextval('studios_studio_id_seq'::regclass),
-    owner_id integer NOT NULL,
-    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    description text COLLATE pg_catalog."default",
-    address text COLLATE pg_catalog."default" NOT NULL,
-    city character varying(100) COLLATE pg_catalog."default",
-    state character varying(100) COLLATE pg_catalog."default",
-    postal_code character varying(20) COLLATE pg_catalog."default",
-    phone character varying(20) COLLATE pg_catalog."default",
-    is_active boolean DEFAULT true,
-    is_published boolean DEFAULT false,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    lat numeric(10,8),
-    lng numeric(11,8),
-    CONSTRAINT studios_pkey PRIMARY KEY (studio_id),
-    CONSTRAINT studios_owner_id_fkey FOREIGN KEY (owner_id)
-        REFERENCES public.users (user_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-)
+CREATE TABLE studios (
+    studio_id SERIAL PRIMARY KEY,
+    owner_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address TEXT NOT NULL,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20),
+    phone VARCHAR(20),
+    is_active BOOLEAN DEFAULT TRUE,
+    is_published BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lat NUMERIC(10,8),
+    lng NUMERIC(11,8)
+);
 
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.studios
-    OWNER to postgres;
--- Index: idx_studios_owner
-
--- DROP INDEX IF EXISTS public.idx_studios_owner;
-
-CREATE INDEX IF NOT EXISTS idx_studios_owner
-    ON public.studios USING btree
-    (owner_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-    
 -- ============================================
--- TABLE 3: RESOURCES (Rooms within studios)
+-- TABLE 3: RESOURCES
 -- ============================================
 CREATE TABLE resources (
     resource_id SERIAL PRIMARY KEY,
     studio_id INTEGER NOT NULL REFERENCES studios(studio_id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
-    resource_type VARCHAR(50) CHECK (resource_type IN ('live_room', 'control_room', 'booth', 'rehearsal')),
+    resource_type VARCHAR(50) CHECK (
+        resource_type IN ('live_room', 'control_room', 'booth', 'rehearsal')
+    ),
     description TEXT,
-    base_price_per_hour DECIMAL(10, 2) NOT NULL,
+    base_price_per_hour DECIMAL(10,2) NOT NULL,
     max_occupancy INTEGER,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
--- TABLE 4: AVAILABILITY TEMPLATE (Weekly schedule)
+-- TABLE 4: AVAILABILITY TEMPLATE
 -- ============================================
 CREATE TABLE availability_template (
     template_id SERIAL PRIMARY KEY,
@@ -101,23 +88,26 @@ CREATE TABLE bookings (
     end_time TIME NOT NULL,
     duration_minutes INTEGER NOT NULL,
     status VARCHAR(30) DEFAULT 'pending_approval' CHECK (
-        status IN ('pending_approval', 'approved', 'rejected', 'confirmed', 'checked_in', 'completed', 'cancelled', 'refunded')
+        status IN (
+            'pending_approval', 'approved', 'rejected', 'confirmed',
+            'checked_in', 'completed', 'cancelled', 'refunded'
+        )
     ),
-    total_amount DECIMAL(10, 2) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
     currency VARCHAR(10) DEFAULT 'INR',
     approved_at TIMESTAMP,
     approved_by INTEGER REFERENCES users(user_id),
     rejection_reason TEXT,
     cancelled_at TIMESTAMP,
     cancel_reason TEXT,
-    refund_percentage DECIMAL(5, 2),
-    refund_amount DECIMAL(10, 2),
+    refund_percentage DECIMAL(5,2),
+    refund_amount DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
--- TABLE 6: EVENT LOG (Audit trail)
+-- TABLE 6: EVENT LOG
 -- ============================================
 CREATE TABLE event_log (
     log_id SERIAL PRIMARY KEY,
@@ -133,17 +123,17 @@ CREATE TABLE event_log (
 );
 
 -- ============================================
--- INDEXES for better performance
+-- INDEXES
 -- ============================================
-CREATE INDEX idx_studios_owner ON studios(owner_id);
-CREATE INDEX idx_resources_studio ON resources(studio_id);
-CREATE INDEX idx_bookings_user ON bookings(user_id);
-CREATE INDEX idx_bookings_resource ON bookings(resource_id);
-CREATE INDEX idx_bookings_date ON bookings(booking_date);
-CREATE INDEX idx_bookings_status ON bookings(status);
-CREATE INDEX idx_event_log_user ON event_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_studios_owner ON studios(owner_id);
+CREATE INDEX IF NOT EXISTS idx_resources_studio ON resources(studio_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_resource ON bookings(resource_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(booking_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_event_log_user ON event_log(user_id);
 
 -- ============================================
 -- SUCCESS MESSAGE
 -- ============================================
-SELECT 'Database schema created successfully!' as message;
+SELECT 'Database schema created successfully!' AS message;

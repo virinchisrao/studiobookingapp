@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: studio-booking-config
+  namespace: startup
+  labels:
+    app: studio-booking
+data:
+  # Environment: production/development/staging
+  ENVIRONMENT: production
+  
+  # CORS Allowed Origins - IMPORTANT!
+  # For development: Allow localhost and port-forward addresses
+  # For production: Set your actual domain(s)
+  #
+  # Current settings:
+  # - Development (localhost): http://localhost, http://127.0.0.1, http://localhost:*
+  # - Production: Set your actual domain(s) like https://yourdomain.com
+  #
+  # To allow ALL origins (INSECURE for production - use with caution):
+  ALLOWED_ORIGINS: "*"
+  
+  # API Base URL (internal K8s service - used by frontend for K8s deployments)
+  # For docker-compose/local: Use http://backend:8000
+  # For K8s: Use http://studio-booking-backend.startup.svc.cluster.local:8000
+  API_BASE_URL: http://studio-booking-backend.startup.svc.cluster.local:8000

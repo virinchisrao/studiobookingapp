@@ -9,9 +9,17 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+
+let MapView = null;
+let Marker = null;
+if (Platform.OS !== 'web') {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+}
 
 export default function LocationPicker({ initialLat, initialLng, onLocationSelect, visible, onClose }) {
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -112,25 +120,36 @@ export default function LocationPicker({ initialLat, initialLng, onLocationSelec
         </View>
 
         {/* Map */}
-        <MapView
-          style={styles.map}
-          region={region}
-          onRegionChangeComplete={setRegion}
-          onPress={handleMapPress}
-          showsUserLocation={true}
-        >
-          {selectedLocation && (
-            <Marker
-              coordinate={selectedLocation}
-              draggable
-              onDragEnd={handleMapPress}
-            >
-              <View style={styles.customMarker}>
-                <Text style={styles.markerIcon}>📍</Text>
-              </View>
-            </Marker>
-          )}
-        </MapView>
+        {Platform.OS !== 'web' && MapView ? (
+          <MapView
+            style={styles.map}
+            region={region}
+            onRegionChangeComplete={setRegion}
+            onPress={handleMapPress}
+            showsUserLocation={true}
+          >
+            {selectedLocation && (
+              <Marker
+                coordinate={selectedLocation}
+                draggable
+                onDragEnd={handleMapPress}
+              >
+                <View style={styles.customMarker}>
+                  <Text style={styles.markerIcon}>📍</Text>
+                </View>
+              </Marker>
+            )}
+          </MapView>
+        ) : (
+          <View style={styles.webMapFallback}>
+            <Text style={styles.webMapFallbackText}>
+              Map selection is not available on web
+            </Text>
+            <Text style={styles.webMapFallbackSubtext}>
+              Please use the mobile app to select a location
+            </Text>
+          </View>
+        )}
 
         {/* Info Card */}
         {selectedLocation && (
@@ -330,5 +349,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#856404',
     lineHeight: 18,
+  },
+  webMapFallback: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 40,
+  },
+  webMapFallbackText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#666',
+    marginBottom: 8,
+  },
+  webMapFallbackSubtext: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
   },
 });

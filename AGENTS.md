@@ -1,198 +1,131 @@
-# AGENTS.md - Coding Guidelines for Agents
+# AGENTS.md - Studio Booking App
 
-This document provides guidance for AI agents working on the Studio Booking Application.
+## Quick Start
 
-## Project Overview
-
-- **Type**: Full-stack mobile-first web application
-- **Backend**: FastAPI (Python) with SQLAlchemy ORM, PostgreSQL database
-- **Frontend**: React Native with Expo
-- **Auth**: JWT-based authentication with bcrypt password hashing
-- **API Docs**: Available at `/docs` (Swagger UI)
-
-## Project Structure
-
-```
-backend/
-├── main.py                 # FastAPI app entry point
-├── requirements.txt        # Python dependencies
-├── .env                    # Environment variables (DATABASE_URL, SECRET_KEY)
-├── app/
-│   ├── core/              # Config, database, security, auth dependencies
-│   ├── models/            # SQLAlchemy ORM models
-│   ├── routes/           # FastAPI route handlers
-│   ├── schemas/          # Pydantic request/response schemas
-│   └── utils/            # Helper functions
-
-frontend/
-├── package.json           # Node/Expo dependencies
-├── App.js                 # React Native entry point
-└── src/
-    ├── components/       # Reusable UI components
-    ├── navigation/       # React Navigation setup
-    ├── screens/          # Screen components
-    ├── services/         # API client (axios)
-    └── utils/            # Helper functions
-```
-
-## Build & Run Commands
-
-### Backend (FastAPI)
-
+### Backend
 ```bash
 cd backend
-
-# Activate virtual environment (Windows)
-venv\Scripts\activate
-# Or (macOS/Linux)
-source venv/bin/activate
-
-# Install dependencies
+.\venv\Scripts\activate
 pip install -r requirements.txt
-
-# Run development server (auto-reload)
+# Create PostgreSQL database first: createdb studio_booking_db
+psql -U postgres -d studio_booking_db -f database_schema.sql
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-# Run tests (if pytest configured)
-pytest -v
-pytest tests/test_file.py::test_function -v  # Run single test
-
-# Access API docs
-# http://127.0.0.1:8000/docs
+# API docs: http://127.0.0.1:8000/docs
 ```
 
-### Frontend (React Native + Expo)
-
+### Frontend
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start Expo (QR code for mobile testing)
+# Edit src/services/api.js - set API_BASE_URL to your LAN IP for device testing
 npx expo start
-
-# Run on specific platforms
-npx expo start --web
-npx expo start --android
-npx expo start --ios
 ```
 
-## Code Style Guidelines
+## Project Structure
+- `backend/main.py` - FastAPI entry point
+- `backend/app/routes/` - auth, studio, resource, booking routers
+- `frontend/App.js` - React Native entry point
+- `frontend/src/screens/` - All screen components
+- `frontend/src/services/api.js` - Axios with token interceptor
 
-### Python (Backend)
+## Critical Details
 
-**Imports**:
-- Group in order: standard library, third-party, local application
-- Use explicit relative imports: `from app.core.database import Base`
+- **Login**: Form-encoded `username=email&password` to `/auth/login`
+- **Booking slots**: 30-minute increments only
+- **Approval flow**: Bookings require owner approval (`pending_approval` → `approved/rejected`)
+- **JSONB columns**: Use `meta_data`, NOT `metadata` (avoids reserved name conflict)
+- **Database**: PostgreSQL with SQLAlchemy; schema in `backend/database_schema.sql`
 
-**Naming**:
-- Variables/functions: `snake_case` (e.g., `get_user_by_email`)
-- Classes: `PascalCase` (e.g., `UserResponse`)
-- Constants: `UPPER_SNAKE_CASE`
-- Database tables: `snake_case` (e.g., `user_id`, `created_at`)
+## Test Endpoints
+- `GET /test-db` - Verify DB connection
+- `GET /test-models` - Verify all ORM models work
 
-**Types**:
-- Use Pydantic `BaseModel` for request/response schemas
-- Use SQLAlchemy `Column` for model definitions
-- Use Python type hints (`def func(param: str) -> List[dict]`)
+## Key Routes
+- Auth: `/auth/register`, `/auth/login`, `/auth/me`
+- Studios: `GET/POST /studios/`, `GET/PUT/DELETE /studios/{id}`
+- Bookings: `POST /bookings/`, `GET /bookings/my-bookings`, `GET /bookings/pending-approvals`, `PUT /bookings/{id}/approve`
 
-**Error Handling**:
-- Raise `HTTPException` with appropriate status codes
-- Use try/except blocks, rollback on failure: `db.rollback()`
-- Return meaningful error messages in `detail` field
+## CORS Configuration
 
-**Formatting**:
-- Maximum line length: 100 characters
-- Use 4 spaces for indentation
-- Add docstrings for route handlers and complex functions
+The backend uses environment-based CORS:
+- `ALLOWED_ORIGINS` environment variable (comma-separated)
+- Default: `http://localhost:3000,http://127.0.0.1:3000`
+- For production: Set specific domains in K8s configmap
 
-**Pydantic Schemas**:
-- Use `Field()` for validation (min_length, max_length, pattern)
-- Use `EmailStr` for email validation
-- Set `from_attributes = True` in `Config` class for ORM compatibility
-- Use `Optional[type]` with `None` default for nullable fields
+## Docker & K8s
 
-### JavaScript/React Native (Frontend)
+### Build Images
+```bash
+# Backend
+docker build -t studio-booking-backend:latest ./backend
 
-**Imports**:
-- Group: React, third-party components, local imports
-- Use relative paths: `import { authAPI } from '../services/api'`
-
-**Naming**:
-- Variables/functions/components: `camelCase`
-- Component files: `PascalCase` (e.g., `BookingScreen.js`)
-- Constants: `UPPER_SNAKE_CASE`
-
-**React Patterns**:
-- Use functional components with hooks (`useState`, `useEffect`)
-- Use async/await for API calls
-- Store JWT tokens in AsyncStorage (via `api.js` interceptor)
-- Use React Navigation for screen routing
-
-**API Calls**:
-- Use the centralized `api.js` service with axios
-- Token automatically attached via request interceptor
-- Handle errors with try/catch blocks
-
-**State Management**:
-- Use React Navigation params for passing data between screens
-- Use `AsyncStorage` for persisting auth token
-
-## API Patterns
-
-### Backend Routes
-
-All routes use the pattern: `app.include_router(router)` in `main.py`
-
-Authentication:
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login (form-encoded: username=email, password)
-- `GET /auth/me` - Get current user (protected)
-
-Studios:
-- `GET /studios/` - List all studios
-- `POST /studios/` - Create studio (owner only)
-- `GET /studios/{id}` - Get studio details
-
-Bookings:
-- `POST /bookings/` - Create booking
-- `GET /bookings/my-bookings` - Customer's bookings
-- `GET /bookings/pending-approvals` - Owner's pending bookings
-- `PUT /bookings/{id}/approve` - Approve/reject booking
-
-### Response Format
-
-Success: Return model instance or dict
-Error: Raise `HTTPException(status_code=N, detail="message")`
-
-## Database
-
-- PostgreSQL with SQLAlchemy ORM
-- Use `get_db()` dependency for session management
-- Always `db.commit()` after changes, `db.refresh()` to get updated data
-- Use `meta_data` (not `metadata`) for JSONB columns (avoids reserved name conflict)
-
-## Environment Variables
-
-Backend (`.env`):
-```
-DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/studio_booking_db
-SECRET_KEY=your-random-secret-key
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
+# Frontend (static export)
+docker build -t studio-booking-frontend:latest ./frontend
 ```
 
-Frontend: Update `API_BASE_URL` in `src/services/api.js` to your LAN IP for device testing
+### Docker Compose (Local)
+```bash
+docker-compose up --build
+# Services: frontend on :3000, backend on :8000, postgres on :5432
+```
 
-## Testing Notes
+### Manual Docker (Separate Network)
+```bash
+# Create network
+docker network create studio_booking_network
 
-- Backend test endpoints: `/test-db`, `/test-models`
-- No formal test suite exists yet; consider adding pytest
-- Use Swagger UI at `/docs` for manual API testing
+# Run PostgreSQL
+docker run -d --name studio_booking_db --network studio_booking_network -e POSTGRES_USER=studio_app -e POSTGRES_PASSWORD=studio123 -e POSTGRES_DB=studiobook_db -p 5432:5432 postgres:17-alpine
 
-## Key Conventions
+# Run Backend
+docker run -d --name studio_booking_backend --network studio_booking_network -e DATABASE_URL="postgresql://studio_app:studio123@studio_booking_db:5432/studiobook_db" -e SECRET_KEY=secret -p 8000:8000 studio-booking-backend:latest
 
-1. **30-minute slots**: Booking durations are in 30-minute increments
-2. **Role-based access**: Users have `customer` or `owner` role
-3. **Manual approval**: Bookings require owner approval (pending → approved/rejected)
-4. **Event logging**: Key actions logged to `event_log` table with `meta_data` JSONB
+# Run Frontend
+docker run -d --name studio_booking_frontend --network studio_booking_network -p 3000:80 studio-booking-frontend:latest
+```
+
+### K8s Deploy
+```bash
+kubectl apply -f k8s/secrets.yml
+kubectl apply -f k8s/configmap.yml
+kubectl apply -f k8s/postgres.yml
+kubectl apply -f k8s/backend-deployment.yml
+kubectl apply -f k8s/frontend-deployment.yml
+```
+
+## Database Auto-Initialization
+
+The backend includes a startup script (`backend/startup.py`) that:
+- Waits for PostgreSQL to be ready (30 retries, 2s delay)
+- Creates tables automatically on first startup
+- Configurable via env vars: `DB_STARTUP_RETRIES`, `DB_STARTUP_DELAY`
+
+## EAS Build (Android APK)
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login to Expo
+eas login
+
+# Configure project (already done - eas.json exists)
+cd frontend
+
+# Build APK for testing
+eas build --profile preview --platform android
+
+# Download APK from link
+```
+
+Build profiles in `eas.json`:
+- `development` - Development build with dev client
+- `preview` - Internal testing APK
+- `production` - App Store ready AAB
+
+## Web Build
+```bash
+cd frontend
+npx expo export --platform web
+# Output in dist/ folder
+```

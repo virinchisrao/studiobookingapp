@@ -9,10 +9,18 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { resourceAPI } from '../services/api';
-import MapView, { Marker } from 'react-native-maps';
-import { Linking, Platform } from 'react-native';
+import { Linking } from 'react-native';
+
+let MapView = null;
+let Marker = null;
+if (Platform.OS !== 'web') {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+}
 
 export default function StudioDetailsScreen({ route, navigation }) {
   const { studio } = route.params;
@@ -123,10 +131,10 @@ export default function StudioDetailsScreen({ route, navigation }) {
         </View>
 
         {/* Location Map */}
-{studio.lat && studio.lng && (
-  <View style={styles.mapSection}>
-    <Text style={styles.sectionTitle}>Location</Text>
-    <MapView
+        {studio.lat && studio.lng && Platform.OS !== 'web' && MapView && (
+          <View style={styles.mapSection}>
+            <Text style={styles.sectionTitle}>Location</Text>
+            <MapView
       style={styles.miniMap}
       initialRegion={{
         latitude: parseFloat(studio.lat),
@@ -167,6 +175,15 @@ export default function StudioDetailsScreen({ route, navigation }) {
     >
       <Text style={styles.directionsButtonText}>📍 Get Directions</Text>
     </TouchableOpacity>
+  </View>
+)}
+{studio.lat && studio.lng && (Platform.OS === 'web' || !MapView) && (
+  <View style={styles.mapSection}>
+    <Text style={styles.sectionTitle}>Location</Text>
+    <View style={styles.webMapFallback}>
+      <Text style={styles.webMapFallbackText}>📍 {studio.address}</Text>
+      <Text style={styles.webMapFallbackSubtext}>{studio.city}, {studio.state}</Text>
+    </View>
   </View>
 )}
 
@@ -453,5 +470,23 @@ directionsButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  webMapFallback: {
+    height: 200,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  webMapFallbackText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  webMapFallbackSubtext: {
+    fontSize: 14,
+    color: '#666',
   },
 });

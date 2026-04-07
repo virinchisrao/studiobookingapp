@@ -6,8 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Your backend URL
 // NOTE: Use your computer's local IP, NOT localhost!
 
-// const API_BASE_URL = 'http://127.0.0.1:8000';
-const API_BASE_URL = 'http://192.168.1.10:8000';
+// For docker-compose/docker: use '/api' or host IP
+// For K8s with port-forward: Use http://127.0.0.1:8000 (backend port-forward)
+// For K8s with minikube service: Use http://studio-booking-backend.startup.svc.cluster.local:8000
+//
+// Current setup: Port-forward access
+// - Backend: http://127.0.0.1:8000 (port-forward)
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // Create axios instance
 const api = axios.create({
